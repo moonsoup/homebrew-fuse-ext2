@@ -1,8 +1,8 @@
 class FuseExt2 < Formula
   desc "Mount ext2/ext3/ext4 filesystems read-only on modern macOS via macFUSE"
   homepage "https://github.com/moonsoup/fuse-ext2"
-  url "https://github.com/moonsoup/fuse-ext2/archive/refs/tags/v0.0.11.1.tar.gz"
-  sha256 "f9f2459e2a067acc8fcad5d76391d4935cc7af9e16743cda9b5ec3fdf0995c38"
+  url "https://github.com/moonsoup/fuse-ext2/archive/refs/tags/v0.0.11.2.tar.gz"
+  sha256 "9edd4b3d34e23dafa25e20d1231c40c6b019ac2794c9f7533a8c68e72f78a9bc"
   license "GPL-2.0-only"
 
   # macFUSE lives in /usr/local, which Homebrew's supercompiler strips. Use the
@@ -47,6 +47,7 @@ class FuseExt2 < Formula
     # `fuse-ext2 <device> <mountpoint>` use.
     system "make", "-C", "fuse-ext2", "fuse-ext2"
     bin.install "fuse-ext2/fuse-ext2"
+    bin.install "contrib/fuse-ext2-mount" if File.exist?("contrib/fuse-ext2-mount")
     man1.install "fuse-ext2/fuse-ext2.1" if File.exist?("fuse-ext2/fuse-ext2.1")
   end
 
@@ -54,7 +55,13 @@ class FuseExt2 < Formula
     <<~EOS
       fuse-ext2 needs macFUSE (a kernel extension). If you don't have it yet:
         brew install --cask macfuse
-      then approve it in System Settings -> Privacy & Security and reboot if asked.
+      Then enable it (a kext, so this is required, not optional):
+        1. System Settings -> Privacy & Security -> Allow the blocked macFUSE extension
+        2. RESTART your Mac (it only loads after a reboot)
+      On Apple Silicon, first-time kext loading also needs Reduced Security:
+      boot into Recovery -> Startup Security Utility -> Reduced Security +
+      "Allow user management of kernel extensions", then restart. See
+      https://macfuse.github.io/
 
       Mount an ext2/3/4 device or image read-only:
         fuse-ext2 /dev/diskNsM /path/to/mountpoint -o ro,allow_other
